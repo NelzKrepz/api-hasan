@@ -17,10 +17,7 @@ class CurrencyFormat {
     constructor(string, prefix) {
         this.num = string;
         this.prefix = prefix;
-        this.formatted = this.toCurrency();
-    }
-    
-    toCurrency() {
+
         var number_string = this.num.replace(/[^,\d]/g, '').toString(),
             split = number_string.split(','),
             sisa = split[0].length % 3,
@@ -33,7 +30,11 @@ class CurrencyFormat {
         }
     
         currency = split[1] != undefined ? currency + ',' + split[1] : currency;
-        return this.prefix == undefined ? currency : (this.prefix + currency);
+        this.formatted = (this.prefix == undefined ? currency : (this.prefix + currency));
+    }
+    
+    toCurrency() {
+        return this.formatted;
     }
 
     /**
