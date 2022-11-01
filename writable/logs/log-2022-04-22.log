@@ -1,0 +1,10 @@
+CRITICAL - 2022-04-22 20:20:31 --> syntax error, unexpected '}', expecting ';'
+#0 /home/runner/CodeIgniter-4-Starter/system/Autoloader/Autoloader.php(241): CodeIgniter\Autoloader\Autoloader->includeFile('/home/runner/Co...')
+#1 /home/runner/CodeIgniter-4-Starter/system/Autoloader/Autoloader.php(219): CodeIgniter\Autoloader\Autoloader->loadInNamespace('App\\Controllers...')
+#2 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass('App\\Controllers...')
+#3 [internal function]: spl_autoload_call('App\\Controllers...')
+#4 /home/runner/CodeIgniter-4-Starter/system/CodeIgniter.php(797): class_exists('\\App\\Controller...', true)
+#5 /home/runner/CodeIgniter-4-Starter/system/CodeIgniter.php(406): CodeIgniter\CodeIgniter->startController()
+#6 /home/runner/CodeIgniter-4-Starter/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#7 /home/runner/CodeIgniter-4-Starter/public/index.php(39): CodeIgniter\CodeIgniter->run()
+#8 {main}
