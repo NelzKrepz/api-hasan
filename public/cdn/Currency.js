@@ -36,6 +36,21 @@ class CurrencyFormat {
     }
     
     toCurrency() {
+        if (typeof this.num == 'string') {
+            var number_string = this.num.replace(/[^,\d]/g, '').toString(),
+                split = number_string.split(','),
+                sisa = split[0].length % 3,
+                currency = split[0].substr(0, sisa),
+                ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+    
+            if (ribuan) {
+                let separator = sisa ? '.' : '';
+                currency += separator + ribuan.join('.');
+            }
+    
+            currency = split[1] != undefined ? currency + ',' + split[1] : currency;
+            this.formatted = (this.prefix == undefined ? currency : (this.prefix + currency));
+        }
         return this.formatted;
     }
 
