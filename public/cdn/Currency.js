@@ -47,6 +47,7 @@ class CurrencyFormat {
      * ```
      */
     assignElement(element) {
+        this.num = $(element).val();
         let run = () => {
             function number_format(number, decimals, dec_point, thousands_sep) {
                 var n = !isFinite(+number) ? 0 : +number,
@@ -68,7 +69,6 @@ class CurrencyFormat {
                 return s.join(dec);
             }
 
-            this.num = $(element).val();
             var currency;
             $(element).attr('type', 'text');
             var id1 = $(element).attr('id') + '1';
