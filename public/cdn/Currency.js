@@ -15,7 +15,7 @@ class CurrencyFormat {
      * @param {string} prefix A prefix currency. 
      */
     constructor(string, prefix) {
-        this.num = string.toString();
+        this.num = string;
         this.prefix = prefix;
 
         var number_string = this.num.replace(/[^,\d]/g, '').toString(),
