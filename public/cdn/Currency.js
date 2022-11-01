@@ -49,8 +49,8 @@ class CurrencyFormat {
      * ```
      */
     assignElement(element) {
-        this.num = $(element).val();
         let run = () => {
+            this.num = $(element).val();
             function number_format(number, decimals, dec_point, thousands_sep) {
                 var n = !isFinite(+number) ? 0 : +number,
                     prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
