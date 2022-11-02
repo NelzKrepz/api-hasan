@@ -12,10 +12,11 @@
 namespace CodeIgniter\Session;
 
 use CodeIgniter\Cookie\Cookie;
+use CodeIgniter\HTTP\Response;
 use Config\App;
 use Config\Cookie as CookieConfig;
+use Config\Services;
 use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
 use SessionHandlerInterface;
 
 /**
@@ -23,6 +24,8 @@ use SessionHandlerInterface;
  *
  * Session configuration is done through session variables and cookie related
  * variables in app/config/App.php
+ *
+ * @property string $session_id
  */
 class Session implements SessionInterface
 {
@@ -153,13 +156,6 @@ class Session implements SessionInterface
     protected $sidRegexp;
 
     /**
-     * Logger instance to record error messages and warnings.
-     *
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /**
      * Constructor.
      *
      * Extract configuration settings and save them here.
@@ -185,7 +181,7 @@ class Session implements SessionInterface
         /** @var CookieConfig $cookie */
         $cookie = config('Cookie');
 
-        $this->cookie = new Cookie($this->sessionCookieName, '', [
+        $this->cookie = (new Cookie($this->sessionCookieName, '', [
             'expires'  => $this->sessionExpiration === 0 ? 0 : time() + $this->sessionExpiration,
             'path'     => $cookie->path ?? $config->cookiePath,
             'domain'   => $cookie->domain ?? $config->cookieDomain,
@@ -193,7 +189,7 @@ class Session implements SessionInterface
             'httponly' => true, // for security
             'samesite' => $cookie->samesite ?? $config->cookieSameSite ?? Cookie::SAMESITE_LAX,
             'raw'      => $cookie->raw ?? false,
-        ]);
+        ]))->withPrefix(''); // Cookie prefix should be ignored.
 
         helper('array');
     }
@@ -409,6 +405,28 @@ class Session implements SessionInterface
     {
         $_SESSION['__ci_last_regenerate'] = time();
         session_regenerate_id($destroy);
+
+        $this->removeOldSessionCookie();
+    }
+
+    private function removeOldSessionCookie(): void
+    {
+        $response              = Services::response();
+        $cookieStoreInResponse = $response->getCookieStore();
+
+        if (! $cookieStoreInResponse->has($this->sessionCookieName)) {
+            return;
+        }
+
+        // CookieStore is immutable.
+        $newCookieStore = $cookieStoreInResponse->remove($this->sessionCookieName);
+
+        // But clear() method clears cookies in the object (not immutable).
+        $cookieStoreInResponse->clear();
+
+        foreach ($newCookieStore as $cookie) {
+            $response->setCookie($cookie);
+        }
     }
 
     /**
@@ -463,7 +481,7 @@ class Session implements SessionInterface
      *
      * @param string|null $key Identifier of the session property to retrieve
      *
-     * @return mixed The property value(s)
+     * @return array|bool|float|int|object|string|null The property value(s)
      */
     public function get(?string $key = null)
     {
@@ -904,6 +922,8 @@ class Session implements SessionInterface
         $expiration   = $this->sessionExpiration === 0 ? 0 : time() + $this->sessionExpiration;
         $this->cookie = $this->cookie->withValue(session_id())->withExpires($expiration);
 
-        cookies([$this->cookie], false)->dispatch();
+        /** @var Response $response */
+        $response = Services::response();
+        $response->setCookie($this->cookie);
     }
 }

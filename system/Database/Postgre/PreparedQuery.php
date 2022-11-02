@@ -46,13 +46,13 @@ class PreparedQuery extends BasePreparedQuery
      * @param array $options Passed to the connection's prepare statement.
      *                       Unused in the MySQLi driver.
      *
-     * @throws Exception
-     *
      * @return mixed
+     *
+     * @throws Exception
      */
     public function _prepare(string $sql, array $options = [])
     {
-        $this->name = (string) random_int(1, 10000000000000000);
+        $this->name = (string) random_int(1, 10_000_000_000_000_000);
 
         $sql = $this->parameterize($sql);
 

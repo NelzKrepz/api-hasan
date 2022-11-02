@@ -22,7 +22,7 @@ if (! function_exists('ul')) {
      * Generates an HTML unordered list from an single or
      * multi-dimensional array.
      *
-     * @param mixed $attributes HTML attributes string, array, object
+     * @param array|object|string $attributes HTML attributes string, array, object
      */
     function ul(array $list, $attributes = ''): string
     {
@@ -36,7 +36,7 @@ if (! function_exists('ol')) {
      *
      * Generates an HTML ordered list from an single or multi-dimensional array.
      *
-     * @param mixed $attributes HTML attributes string, array, object
+     * @param array|object|string $attributes HTML attributes string, array, object
      */
     function ol(array $list, $attributes = ''): string
     {
@@ -50,8 +50,8 @@ if (! function_exists('_list')) {
      *
      * Generates an HTML ordered list from an single or multi-dimensional array.
      *
-     * @param mixed $list
-     * @param mixed $attributes string, array, object
+     * @param array               $list
+     * @param array|object|string $attributes string, array, object
      */
     function _list(string $type = 'ul', $list = [], $attributes = '', int $depth = 0): string
     {
@@ -156,7 +156,7 @@ if (! function_exists('img_data')) {
         $data = base64_encode($data);
 
         // Figure out the type (Hail Mary to JPEG)
-        $mime = $mime ?? Mimes::guessTypeFromExtension(pathinfo($path, PATHINFO_EXTENSION)) ?? 'image/jpg';
+        $mime ??= Mimes::guessTypeFromExtension(pathinfo($path, PATHINFO_EXTENSION)) ?? 'image/jpg';
 
         return 'data:' . $mime . ';base64,' . $data;
     }
@@ -189,12 +189,14 @@ if (! function_exists('script_tag')) {
      *
      * Generates link to a JS file
      *
-     * @param mixed $src       Script source or an array
-     * @param bool  $indexPage Should indexPage be added to the JS path
+     * @param array|string $src       Script source or an array of attributes
+     * @param bool         $indexPage Should indexPage be added to the JS path
      */
     function script_tag($src = '', bool $indexPage = false): string
     {
-        $script = '<script ';
+        $cspNonce = csp_script_nonce();
+        $cspNonce = $cspNonce ? ' ' . $cspNonce : $cspNonce;
+        $script   = '<script' . $cspNonce . ' ';
         if (! is_array($src)) {
             $src = ['src' => $src];
         }
@@ -207,11 +209,12 @@ if (! function_exists('script_tag')) {
                     $script .= 'src="' . slash_item('baseURL') . $v . '" ';
                 }
             } else {
-                $script .= $k . '="' . $v . '" ';
+                // for attributes without values, like async or defer, use NULL.
+                $script .= $k . (null === $v ? ' ' : '="' . $v . '" ');
             }
         }
 
-        return $script . 'type="text/javascript"' . '></script>';
+        return $script . 'type="text/javascript"></script>';
     }
 }
 
@@ -221,8 +224,8 @@ if (! function_exists('link_tag')) {
      *
      * Generates link to a CSS file
      *
-     * @param mixed $href      Stylesheet href or an array
-     * @param bool  $indexPage should indexPage be added to the CSS path.
+     * @param array|string $href      Stylesheet href or an array
+     * @param bool         $indexPage should indexPage be added to the CSS path.
      */
     function link_tag($href = '', string $rel = 'stylesheet', string $type = 'text/css', string $title = '', string $media = '', bool $indexPage = false, string $hreflang = ''): string
     {
@@ -278,9 +281,9 @@ if (! function_exists('video')) {
      * Generates a video element to embed videos. The video element can
      * contain one or more video sources
      *
-     * @param mixed  $src                Either a source string or an array of sources
-     * @param string $unsupportedMessage The message to display if the media tag is not supported by the browser
-     * @param string $attributes         HTML attributes
+     * @param array|string $src                Either a source string or an array of sources
+     * @param string       $unsupportedMessage The message to display if the media tag is not supported by the browser
+     * @param string       $attributes         HTML attributes
      */
     function video($src, string $unsupportedMessage = '', string $attributes = '', array $tracks = [], bool $indexPage = false): string
     {
@@ -324,9 +327,9 @@ if (! function_exists('audio')) {
      *
      * Generates an audio element to embed sounds
      *
-     * @param mixed  $src                Either a source string or an array of sources
-     * @param string $unsupportedMessage The message to display if the media tag is not supported by the browser.
-     * @param string $attributes         HTML attributes
+     * @param array|string $src                Either a source string or an array of sources
+     * @param string       $unsupportedMessage The message to display if the media tag is not supported by the browser.
+     * @param string       $attributes         HTML attributes
      */
     function audio($src, string $unsupportedMessage = '', string $attributes = '', array $tracks = [], bool $indexPage = false): string
     {
